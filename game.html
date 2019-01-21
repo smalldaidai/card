@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+
+<style type="text/css">
+
+	body{background:beige url('./images/bg-big.jpg');}
+}
+	
+	table,table tr th, table tr td { border:1px solid black; }
+
+	td { height:200px;width:300px;padding: 5px 5px;  }
+
+	img {
+width: auto;
+height: auto;
+max-width: 100%;
+max-height: 100%;
+}
+</style>
+
+<script type="text/javascript">
+<!--
+	var width = 6;
+	var height = 4;
+
+	var changed = 0;
+
+	var changedImages = [];
+
+	var images = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+
+	var single = "single.jpg";
+
+	var bg = "bg.jpg";
+	
+	var data = [];
+
+	var imageUsed = [];
+
+	var currentUser = 0;
+
+	var userCount = 2;
+
+	var userScores = [];
+
+	var userNames = [];
+
+	var imagesCount = Math.floor(width * height/2);
+
+	function randomImage(){
+
+		for(var i = 0 ; i < userCount ; i++){
+			userScores[i] = 0;
+			userNames[i] = "玩家" + (i + 1);
+		}
+
+		for(var i = 0 ; i < imagesCount ; i++){
+			
+			var index = getRandom(images,images.length - i);
+			imageUsed[i] = index;
+		}
+
+		var playground = document.getElementById("playground");
+		
+		var used = 0;
+
+		for(var i = 0 ; i < height ; i++){
+
+			data[i] = [];
+
+			var tr = document.createElement("TR");
+			playground.appendChild(tr);
+			for(var j = 0 ; j < width ; j++){
+
+				var td = document.createElement("TD");
+				tr.appendChild(td);
+
+				var img = document.createElement("IMG");
+
+				img.src = "./images/bg.jpg";
+
+				img.w = j;
+				img.h = i;
+				img.onclick=change;
+				
+				td.appendChild(img);
+
+				if(used < imageUsed.length){
+					data[i][j] = "./images/" + getRandom(imageUsed,imageUsed.length - used) +".jpg";
+				}else if(used < 2*imageUsed.length){
+					data[i][j] = "./images/" + getRandom(imageUsed,2*imageUsed.length - used) +".jpg";
+				}else{
+					data[i][j] = null;
+				}
+				used++;
+			}
+
+		}
+
+		currentUser = 1;
+		switchUser();
+
+		if(width * height %2 == 0)
+			return;
+
+		var x = Math.floor(Math.random()*width);
+		var y = Math.floor(Math.random()*height);
+
+		data[height - 1][width - 1] = data[y][x];
+		data[y][x] = "./images/single.jpg";
+
+	}
+
+	function getRandom(array,count){
+
+		var index = Math.floor(Math.random()*count);
+		var temp = array[index];
+		array[index] = array[count - 1];
+		array[count - 1] = temp;
+		return temp;
+	}
+
+	function change(){
+		if(changed < 1){
+			this.onclick = null;
+			this.src = data[this.h][this.w];
+			console.log(this.h);
+			console.log(this.w);
+			changedImages[changed] = this;
+			changed++;
+			
+		}else if(changed < 2){
+			this.onclick = null;
+			this.src = data[this.h][this.w];			
+			changedImages[changed] = this;
+
+			if(changedImages[0].src == changedImages[1].src){
+				window.setTimeout(function(){
+					changedImages[0].parentNode.removeChild(changedImages[0]);
+					changedImages[1].parentNode.removeChild(changedImages[1]);
+					delayAlert(userNames[currentUser] + "得1分");
+					userScores[currentUser]++;
+					imagesCount--;
+					if(imagesCount == 0){
+
+						var message = "游戏结束!\n";
+
+						for(var i = 0 ; i < userCount ; i++){
+
+							message = message + userNames[i] + "得分:" + userScores[0] + "\n";
+
+						}
+
+						delayAlert(message);
+						
+						setTimeout(function(){
+							location.reload()
+						});
+					}
+					switchUser();
+				});
+				changed = 0;
+				return;
+			}
+
+			changed++;
+			window.setTimeout(function(){
+				switchUser();
+				changed = 0;
+				for(var index = 0 ; index < changedImages.length ; index++){
+					changedImages[index].src = "./images/bg.jpg";
+					changedImages[index].onclick=change;
+				}
+				
+			},1000);
+		}
+	}
+
+	function switchUser(){
+		
+		currentUser = (currentUser + 1) % userCount;
+
+		document.getElementById("userName").innerText = userNames[currentUser];
+	}
+
+	function delayAlert(message){
+		setTimeout(function(){
+			alert(message);
+		});
+	}
+
+
+//-->
+</script>
+
+ </head>
+ <body onload="randomImage()">
+  当前用户：<span id="userName"></span>
+  <table cellspacing="0" id="playground">
+  </table>
+ </body>
+</html>
